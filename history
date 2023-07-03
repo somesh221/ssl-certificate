@@ -1,0 +1,153 @@
+--                         ------      ----
+Apache Full                ALLOW       Anywhere                  
+OpenSSH                    ALLOW       Anywhere                  
+Apache                     ALLOW       Anywhere                  
+Apache Full (v6)           ALLOW       Anywhere (v6)             
+OpenSSH (v6)               ALLOW       Anywhere (v6)             
+Apache (v6)                ALLOW       Anywhere (v6)             
+
+ubuntu@ip-172-31-11-113:~$ sudo a2enmod ssl
+Considering dependency setenvif for ssl:
+Module setenvif already enabled
+Considering dependency mime for ssl:
+Module mime already enabled
+Considering dependency socache_shmcb for ssl:
+Enabling module socache_shmcb.
+Enabling module ssl.
+See /usr/share/doc/apache2/README.Debian.gz on how to configure SSL and create self-signed certificates.
+To activate the new configuration, you need to run:
+  systemctl restart apache2
+ubuntu@ip-172-31-11-113:~$ sudo a2enmod headers
+Enabling module headers.
+To activate the new configuration, you need to run:
+  systemctl restart apache2
+ubuntu@ip-172-31-11-113:~$ sudo a2ensite default-ssl
+Enabling site default-ssl.
+To activate the new configuration, you need to run:
+  systemctl reload apache2
+ubuntu@ip-172-31-11-113:~$ sudo a2enconf ssl-params
+Enabling conf ssl-params.
+To activate the new configuration, you need to run:
+  systemctl reload apache2
+ubuntu@ip-172-31-11-113:~$ sudo apache2ctl configtest
+Syntax OK
+ubuntu@ip-172-31-11-113:~$ sudo systemctl restart apache2
+ubuntu@ip-172-31-11-113:~$ mysql
+ERROR 1045 (28000): Access denied for user 'ubuntu'@'localhost' (using password: NO)
+ubuntu@ip-172-31-11-113:~$ sudo mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 9
+Server version: 8.0.33-0ubuntu0.20.04.2 (Ubuntu)
+
+Copyright (c) 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> exit
+Bye
+ubuntu@ip-172-31-11-113:~$ sudo nano /etc/apache2/sites-available/000-default.conf
+ubuntu@ip-172-31-11-113:~$ cd /etc/apache2/sites-available/
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ ls
+000-default.conf  default-ssl.conf  default-ssl.conf.bak
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ ls -a
+.  ..  .000-default.conf.swp  000-default.conf  default-ssl.conf  default-ssl.conf.bak
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ sudo rm -f 000-default.conf.swp
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ sudo vim /etc/apache2/sites-available/000-default.conf
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ ls -la
+total 32
+drwxr-xr-x 2 root root 4096 Jul  3 08:24 .
+drwxr-xr-x 8 root root 4096 Jul  3 07:35 ..
+-rw-r--r-- 1 root root 1024 Jul  3 08:10 .000-default.conf.swp
+-rw-r--r-- 1 root root 1373 Jul  3 08:24 000-default.conf
+-rw-r--r-- 1 root root 6373 Jul  3 07:40 default-ssl.conf
+-rw-r--r-- 1 root root 6338 Jul  3 07:37 default-ssl.conf.bak
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ sudo rm -f .000-default.conf.swp 
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ ls -a
+.  ..  000-default.conf  default-ssl.conf  default-ssl.conf.bak
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ sudo vim /etc/apache2/sites-available/000-default.conf
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ sudo apache2ctl configtest
+Syntax OK
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ sudo systemctl restart apache2
+ubuntu@ip-172-31-11-113:/etc/apache2/sites-available$ history
+    1  clear
+    2  apt update
+    3  sudo apt update
+    4  sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+    5  sudo vim /etc/apache2/conf-available/ssl-params.conf
+    6  sudo apt install apache2 -y
+    7  SSLCipherSuite EECDH+AESGCM:EDH+AESGCM
+    8  # Requires Apache 2.4.36 & OpenSSL 1.1.1
+    9  SSLProtocol -all +TLSv1.3 +TLSv1.2
+   10  SSLOpenSSLConfCmd Curves X25519:secp521r1:secp384r1:prime256v1
+   11  # Older versions
+   12  # SSLProtocol All -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+   13  SSLHonorCipherOrder On
+   14  # Disable preloading HSTS for now.  You can use the commented out header line that includes 
+   15  # the "preload" directive if you understand the implications.
+   16  # Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+   17  Header always set X-Frame-Options DENY
+   18  Header always set X-Content-Type-Options nosniff
+   19  # Requires Apache >= 2.4
+   20  SSLCompression off
+   21  SSLUseStapling on
+   22  SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
+   23  # Requires Apache >= 2.4.11
+   24  SSLSessionTickets Off
+   25  sudo vim /etc/apache2/conf-available/ssl-params.conf
+   26  sudo cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf.bak
+   27  sudo nano /etc/apache2/sites-available/default-ssl.conf
+   28  sudo vim /etc/apache2/sites-available/default-ssl.conf
+   29  sudo vim /etc/apache2/sites-available/000-default.conf
+   30  sudo ufw app list
+   31  sudo ufw status
+   32  sudo apt install mysql-server 
+   33  sudo systemctl enable mysqld
+   34  sudo systemctl enable mysql
+   35  sudo systemctl start mysql
+   36  sudo ufw status
+   37  sudo ufw allow 'Apache Full'
+   38  sudo ufw delete allow 'Apache'
+   39  sudo ufw status
+   40  sudo ufw allow 'Apache Full'
+   41  sudo ufw delete allow 'Apache'
+   42  sudo ufw status
+   43  sudo ufw allow OpenSSH
+   44  sudo ufw allow 'Apache'
+   45  sudo ufw allow 'Apache Full'
+   46  sudo ufw status
+   47  sudo systemctl start ufw
+   48  sudo systemctl enable ufw
+   49  sudo ufw status
+   50  sudo ufw allow OpenSSH
+   51  sudo apt install sshd
+   52  sudo apt install ssh
+   53  sudo ufw allow OpenSSH
+   54  sudo ufw allow 'Apache'
+   55  sudo ufw allow 'Apache Full'
+   56  sudo ufw status
+   57  sudo systemctl start ufw
+   58  sudo ufw status
+   59  sudo systemctl stop ufw
+   60  sudo ufw start
+   61  ufw start
+   62  sudo ufw allow OpenSSH
+   63  sudo ufw allow 'Apache'
+   64  sudo ufw allow 'Apache Full'
+   65  clear
+   66  sudo vim /etc/apache2/sites-available/000-default.conf
+   67  cd /etc/apache2/sites-available/
+   68  ls
+   69  ls -a
+   70  sudo rm -f 000-default.conf.swp
+   71  sudo vim /etc/apache2/sites-available/000-default.conf
+   72  ls -la
+   73  sudo rm -f .000-default.conf.swp 
+   74  ls -a
+   75  sudo vim /etc/apache2/sites-available/000-default.conf
+   76  sudo apache2ctl configtest
+   77  sudo systemctl restart apache2
+   78  history
